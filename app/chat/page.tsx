@@ -28,9 +28,12 @@ function Chat() {
   }, [chats]);
 
   const sendMessageHandler = () => {
+    const name = localStorage.getItem("name");
     const newMessage = {
       id: Math.floor(Math.random() * 1000),
       message: message,
+      socketID: socket?.id,
+      senderName: name,
       date: new Date().toLocaleTimeString(),
     };
     socket?.emit("message", newMessage);
@@ -44,7 +47,12 @@ function Chat() {
       <div className="flex flex-col ml-auto mr-1">
         {chats.map((item) => {
           return (
-            <Bubble key={item.id} message={item.message} date={item.date} />
+            <Bubble
+              senderName={item.senderName}
+              key={item.id}
+              message={item.message}
+              date={item.date}
+            />
           );
         })}
       </div>
