@@ -8,6 +8,8 @@ function Chat() {
   const [message, setMessage] = useState("");
   const [chats, setChats] = useState(FAKE_DATA);
   const messageRef = useRef<HTMLInputElement>(null);
+
+  const user_name = localStorage.getItem("name");
   const scrollToBottom = () => {
     if (messageRef.current) {
       messageRef.current.scrollIntoView({ behavior: "smooth" });
@@ -44,15 +46,21 @@ function Chat() {
 
   return (
     <section className="flex flex-col justify-between relative h-full">
-      <div className="flex flex-col ml-auto mr-1">
+      <div className="flex flex-col mr-1">
         {chats.map((item) => {
           return (
-            <Bubble
-              senderName={item.senderName}
+            <div
               key={item.id}
-              message={item.message}
-              date={item.date}
-            />
+              className={`${
+                user_name === item.senderName ? "ml-auto" : "mr-auto"
+              }`}
+            >
+              <Bubble
+                senderName={item.senderName}
+                message={item.message}
+                date={item.date}
+              />
+            </div>
           );
         })}
       </div>
