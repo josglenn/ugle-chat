@@ -1,4 +1,10 @@
-export const FAKE_DATA = [
+export interface IChat {
+  id: number;
+  message: string;
+  date: string;
+}
+
+export const FAKE_DATA: IChat[] = [
   {
     id: 1,
     message: "Helloasdasdas, how are you?",

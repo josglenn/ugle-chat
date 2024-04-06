@@ -1,13 +1,13 @@
 "use client";
 
-import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useState, useContext } from "react";
 import Bubble from "../ui/bubble";
 import { FAKE_DATA } from "@/public/fake";
 import socket from "./socket";
 function Chat() {
   const [message, setMessage] = useState("");
-  const [inputValue, setInputValue] = useState("");
-  const [chatHistory, setChatHistory] = useState<any>([]);
+  const [chats, setChats] = useState(FAKE_DATA);
+  // const { chats, setChats } = useContext(ChatsContext);
 
   function sendMessageHandler(): void {
     const newMessage = {
@@ -16,19 +16,22 @@ function Chat() {
       date: new Date().toLocaleTimeString(),
     };
     socket?.emit("message", newMessage);
-    console.log(message);
-    console.log(socket);
+
     setMessage("");
   }
 
-  const chatMemoized = useMemo(() => {
-    return FAKE_DATA;
-  }, []);
+  useEffect(() => {
+    socket?.on("message", (message) => {
+      const newChats = [...chats, message];
+      setChats(newChats);
+      console.log("Message received:", message);
+    });
+  }, [chats, setChats]);
 
   return (
     <section className="flex flex-col justify-between relative h-full">
       <div className="flex flex-col ml-auto mr-1">
-        {chatMemoized.map((item) => {
+        {chats.map((item) => {
           return (
             <Bubble key={item.id} message={item.message} date={item.date} />
           );
