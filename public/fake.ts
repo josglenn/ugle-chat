@@ -2,6 +2,8 @@ export interface IChat {
   id: number;
   message: string;
   date: string;
+  senderName?: string;
+  socketID?: string;
 }
 
 export const FAKE_DATA: IChat[] = [
