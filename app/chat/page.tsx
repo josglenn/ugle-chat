@@ -1,15 +1,33 @@
 "use client";
 
-import { ChangeEvent, useEffect, useMemo, useState, useContext } from "react";
+import { useEffect, useState, useRef } from "react";
 import Bubble from "../ui/bubble";
 import { FAKE_DATA } from "@/public/fake";
 import socket from "./socket";
 function Chat() {
   const [message, setMessage] = useState("");
   const [chats, setChats] = useState(FAKE_DATA);
-  // const { chats, setChats } = useContext(ChatsContext);
+  const messageRef = useRef<HTMLInputElement>(null);
+  const scrollToBottom = () => {
+    if (messageRef.current) {
+      messageRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
-  function sendMessageHandler(): void {
+  useEffect(() => {
+    socket?.on("message", (message) => {
+      const newChats = [...chats, message];
+      setChats(newChats);
+      scrollToBottom();
+      console.log("Message received:", message);
+    });
+  }, [chats, setChats]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [chats]);
+
+  const sendMessageHandler = () => {
     const newMessage = {
       id: Math.floor(Math.random() * 1000),
       message: message,
@@ -18,15 +36,8 @@ function Chat() {
     socket?.emit("message", newMessage);
 
     setMessage("");
-  }
-
-  useEffect(() => {
-    socket?.on("message", (message) => {
-      const newChats = [...chats, message];
-      setChats(newChats);
-      console.log("Message received:", message);
-    });
-  }, [chats, setChats]);
+    scrollToBottom();
+  };
 
   return (
     <section className="flex flex-col justify-between relative h-full">
@@ -37,6 +48,7 @@ function Chat() {
           );
         })}
       </div>
+      <div ref={messageRef} />
       <div className="flex w-[100%] sticky z-50 bottom-0 opacity-90">
         <input
           type="text"
