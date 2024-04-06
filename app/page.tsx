@@ -10,7 +10,10 @@ export default function Home() {
       <p className="text-sm text-center">
         Hi this is Ugle! Try to chat with random stranger
       </p>
-      <Link href={"/chat"} className="text-md bg-cyan-500 rounded-md px-3 py-2">
+      <Link
+        href={"/chat"}
+        className="text-md text-center bg-cyan-500 rounded-md px-3 py-2"
+      >
         Start to Chat!
       </Link>
     </section>

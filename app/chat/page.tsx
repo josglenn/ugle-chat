@@ -1,36 +1,54 @@
 "use client";
 
-import { ChangeEvent, useState } from "react";
-
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import Bubble from "../ui/bubble";
+import { FAKE_DATA } from "@/public/fake";
+import socket from "./socket";
 function Chat() {
-  const [chat, setchat] = useState({
-    sendMessage: "",
-  });
+  const [message, setMessage] = useState("");
+  const [inputValue, setInputValue] = useState("");
+  const [chatHistory, setChatHistory] = useState<any>([]);
 
-  const onChangeChat = (e: ChangeEvent<HTMLInputElement>): void => {
-    setchat({ ...chat, [e.target.name]: e.target.value });
-  };
+  function sendMessageHandler(): void {
+    const newMessage = {
+      id: Math.floor(Math.random() * 1000),
+      message: message,
+      date: new Date().toLocaleTimeString(),
+    };
+    socket?.emit("message", newMessage);
+    console.log(message);
+    console.log(socket);
+    setMessage("");
+  }
 
-  const sendChat = () => {
-    console.log(chat);
-    setchat({
-      sendMessage: "",
-    });
-  };
+  const chatMemoized = useMemo(() => {
+    return FAKE_DATA;
+  }, []);
 
   return (
-    <section className="flex min-h-[91vh] flex-col items-center justify-between">
-      <iframe className="bg-slate-600 w-[100%] h-[80vh]">s</iframe>
-      <div className="flex w-[100%]">
+    <section className="flex flex-col justify-between relative h-full">
+      <div className="flex flex-col ml-auto mr-1">
+        {chatMemoized.map((item) => {
+          return (
+            <Bubble key={item.id} message={item.message} date={item.date} />
+          );
+        })}
+      </div>
+      <div className="flex w-[100%] sticky z-50 bottom-0 opacity-90">
         <input
           type="text"
-          className="w-[100%] text-slate-950 pl-1"
-          name="sendMessage"
-          value={chat.sendMessage.toString()}
-          onChange={onChangeChat}
-          id="sendMessage"
+          className="w-[100%] pl-1 text-sm text-slate-700 outline-0"
+          name="message"
+          value={message}
+          onChange={(e) => {
+            setMessage(e.target.value);
+          }}
+          id="message"
         />
-        <button className="text-md bg-cyan-500 px-7" onClick={sendChat}>
+        <button
+          className="text-md bg-cyan-500 px-7 "
+          onClick={sendMessageHandler}
+        >
           Send
         </button>
       </div>

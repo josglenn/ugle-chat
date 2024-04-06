@@ -14,8 +14,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={lusitana.className}>
+    <html className="h-full" lang="en">
+      <body className={`${lusitana.className} h-full no-scrollbar`}>
         <Header />
         {children}
       </body>
