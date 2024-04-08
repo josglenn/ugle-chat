@@ -8,6 +8,11 @@ function Chat() {
   const [message, setMessage] = useState("");
   const [chats, setChats] = useState<IChat[] | []>([]);
   const [userName, setUserName] = useState<string | null>(null);
+  const [isSomeoneTyping, setIsSomeoneTyping] = useState(false);
+  const [typingActivity, setTypingActivity] = useState({
+    name: "",
+    isTyping: false,
+  });
   const messageRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = () => {
@@ -32,6 +37,18 @@ function Chat() {
     setUserName(name);
   }, []);
 
+  useEffect(() => {
+    socket?.on(
+      "someone-is-typing",
+      (activity: { isTyping: boolean; name: string }) => {
+        const { isTyping: ac } = activity;
+        setIsSomeoneTyping(ac);
+        setTypingActivity(activity);
+        setTimeout(() => setIsSomeoneTyping(false), 5000);
+      }
+    );
+  }, []);
+
   const sendMessageHandler = () => {
     const name = localStorage.getItem("name");
     const newMessage = {
@@ -45,6 +62,14 @@ function Chat() {
 
     setMessage("");
     scrollToBottom();
+  };
+
+  const typinghandler = ({ isTyping }: { isTyping: boolean }) => {
+    const typingActivity = {
+      name: localStorage.getItem("name"),
+      isTyping: isTyping,
+    };
+    socket?.emit("someone-is-typing", typingActivity);
   };
 
   return (
@@ -67,12 +92,20 @@ function Chat() {
           );
         })}
       </div>
+
       <div ref={messageRef} />
+      <span>
+        {isSomeoneTyping && typingActivity?.name !== userName
+          ? `${typingActivity.name} is Typing`
+          : ""}
+      </span>
       <div className="flex w-[100%] sticky z-50 bottom-0 opacity-90">
         <input
           type="text"
           className="w-[100%] pl-1 text-sm text-slate-700 outline-0"
           name="message"
+          onKeyDown={() => typinghandler({ isTyping: true })}
+          // onBlur={() => typinghandler({ isTyping: false })}
           value={message}
           onChange={(e) => {
             setMessage(e.target.value);
