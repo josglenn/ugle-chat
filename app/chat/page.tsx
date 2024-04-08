@@ -2,14 +2,14 @@
 
 import { useEffect, useState, useRef } from "react";
 import Bubble from "../ui/bubble";
-import { FAKE_DATA } from "@/public/fake";
-import socket from "./socket";
+import { IChat } from "@/public/fake";
+import socket from "../socket";
 function Chat() {
   const [message, setMessage] = useState("");
-  const [chats, setChats] = useState(FAKE_DATA);
+  const [chats, setChats] = useState<IChat[] | []>([]);
+  const [userName, setUserName] = useState<string | null>(null);
   const messageRef = useRef<HTMLInputElement>(null);
 
-  const user_name = localStorage.getItem("name");
   const scrollToBottom = () => {
     if (messageRef.current) {
       messageRef.current.scrollIntoView({ behavior: "smooth" });
@@ -17,17 +17,20 @@ function Chat() {
   };
 
   useEffect(() => {
-    socket?.on("message", (message) => {
+    socket?.on("message", (message: IChat) => {
       const newChats = [...chats, message];
       setChats(newChats);
-      scrollToBottom();
-      console.log("Message received:", message);
     });
-  }, [chats, setChats]);
+  }, [chats]);
 
   useEffect(() => {
     scrollToBottom();
   }, [chats]);
+
+  useEffect(() => {
+    const name = localStorage.getItem("name");
+    setUserName(name);
+  }, []);
 
   const sendMessageHandler = () => {
     const name = localStorage.getItem("name");
@@ -52,7 +55,7 @@ function Chat() {
             <div
               key={item.id}
               className={`${
-                user_name === item.senderName ? "ml-auto" : "mr-auto"
+                userName === item.senderName ? "ml-auto" : "mr-auto"
               }`}
             >
               <Bubble
